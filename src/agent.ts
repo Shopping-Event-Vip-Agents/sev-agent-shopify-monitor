@@ -8,7 +8,7 @@ import { handleOnDemand } from "./handlers/on-demand.js";
 
 export class ShopifyMonitorAgent extends BaseAgent {
   public readonly shopifyClient: ShopifyAdminClient;
-  public readonly deeplClient: DeepLClient;
+  public readonly deeplClient: DeepLClient | null;
   public readonly anthropicApiKey: string;
 
   constructor(config: AgentConfig) {
@@ -32,14 +32,15 @@ export class ShopifyMonitorAgent extends BaseAgent {
     }
 
     const deeplApiKey = process.env.DEEPL_API_KEY;
-    if (!deeplApiKey) {
-      throw new Error("Missing required env var: DEEPL_API_KEY");
+    if (deeplApiKey) {
+      this.deeplClient = new DeepLClient({
+        apiKey: deeplApiKey,
+        free: process.env.DEEPL_FREE === "true",
+      });
+    } else {
+      this.deeplClient = null;
+      console.warn("DeepL API key not set — quality comparison against DeepL reference disabled");
     }
-
-    this.deeplClient = new DeepLClient({
-      apiKey: deeplApiKey,
-      free: process.env.DEEPL_FREE === "true",
-    });
 
     this.anthropicApiKey = process.env.ANTHROPIC_API_KEY ?? "";
   }
