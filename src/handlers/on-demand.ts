@@ -66,7 +66,7 @@ async function handleProductCheck(
             ],
           },
           limit: 1,
-        }),
+        }) as any,
       ) as Array<{ shopify_id: string; handle: string; title_nl: string }>;
 
       if (products.length === 0) {
@@ -132,7 +132,7 @@ async function handleReportRequest(
       readItems("translation_issues" as any, {
         filter: { status: { _eq: "open" } },
         limit: -1,
-      }),
+      }) as any,
     ) as TranslationIssueRecord[];
 
     const missing = openIssues.filter((i) => i.issue_type === "missing").length;
@@ -165,7 +165,7 @@ async function handleReportRequest(
           date_resolved: { _gte: weekAgo.toISOString() },
         },
         limit: -1,
-      }),
+      }) as any,
     ) as TranslationIssueRecord[];
 
     const lines: string[] = [
@@ -230,7 +230,7 @@ async function handleStatusUpdate(
       readItems("translation_issues" as any, {
         filter: { id: { _eq: cleanId } },
         limit: 1,
-      }),
+      }) as any,
     ) as TranslationIssueRecord[];
 
     if (issues.length === 0) {
@@ -248,7 +248,7 @@ async function handleStatusUpdate(
       updateItem("translation_issues" as any, cleanId, {
         status: newStatus,
         date_resolved: newStatus === "resolved" ? new Date().toISOString() : null,
-      }),
+      }) as any,
     );
 
     const verb = newStatus === "resolved" ? "resolved" : "ignored";

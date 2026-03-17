@@ -134,7 +134,7 @@ export async function storeReportArtifact(
         }),
         created_by: "shopify-monitor",
         tags: ["translation", "scan", "auto-generated"],
-      }),
+      }) as any,
     );
 
     console.log("[report] Scan report stored as artifact in Directus");

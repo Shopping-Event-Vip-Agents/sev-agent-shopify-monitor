@@ -98,7 +98,7 @@ export async function handleDailyScan(agent: ShopifyMonitorAgent): Promise<ScanS
       readItems("translation_issues" as any, {
         filter: { status: { _eq: "open" } },
         limit: -1,
-      }),
+      }) as any,
     ) as TranslationIssueRecord[];
   } catch (err) {
     console.warn(`[daily-scan] Failed to fetch existing issues: ${err instanceof Error ? err.message : String(err)}`);
@@ -158,13 +158,13 @@ export async function handleDailyScan(agent: ShopifyMonitorAgent): Promise<ScanS
               confidence_score: record.confidence_score,
               details: record.details,
               issue_type: record.issue_type,
-            }),
+            }) as any,
           );
           issuesUpdated++;
         }
       } else {
         // Create new issue
-        await client.request(createItem("translation_issues" as any, record));
+        await client.request(createItem("translation_issues" as any, record) as any);
         newIssuesCreated++;
       }
     } catch (err) {
@@ -193,7 +193,7 @@ export async function handleDailyScan(agent: ShopifyMonitorAgent): Promise<ScanS
             plugin_name: pluginResult.pluginName,
             status: "open",
             date_resolved: null,
-          } as Omit<TranslationIssueRecord, "id" | "date_created" | "date_updated">),
+          } as Omit<TranslationIssueRecord, "id" | "date_created" | "date_updated">) as any,
         );
         newIssuesCreated++;
       }
@@ -304,13 +304,13 @@ async function syncProductCache(
         readItems("shopify_products" as any, {
           filter: { shopify_id: { _eq: shopifyId } },
           limit: 1,
-        }),
+        }) as any,
       ) as ShopifyProductRecord[];
 
       if (existing[0]?.id) {
-        await client.request(updateItem("shopify_products" as any, existing[0].id, record));
+        await client.request(updateItem("shopify_products" as any, existing[0].id, record) as any);
       } else {
-        await client.request(createItem("shopify_products" as any, record));
+        await client.request(createItem("shopify_products" as any, record) as any);
       }
     } catch (err) {
       // Non-critical — log and continue
