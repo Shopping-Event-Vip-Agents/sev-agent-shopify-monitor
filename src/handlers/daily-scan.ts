@@ -46,7 +46,7 @@ export async function handleDailyScan(agent: ShopifyMonitorAgent): Promise<ScanS
   const suspiciousIssues = translationIssues.filter((i) => i.issueType === "outdated");
   const qualityResults = new Map<string, { score: number; reasoning: string }>();
 
-  if (suspiciousIssues.length > 0 && agent.anthropicApiKey) {
+  if (suspiciousIssues.length > 0 && agent.anthropicApiKey && agent.deeplClient) {
     console.log(`[daily-scan] Evaluating ${suspiciousIssues.length} suspicious translations...`);
 
     // Get DeepL reference translations for suspicious items
