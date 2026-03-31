@@ -1,7 +1,8 @@
 import http from "node:http";
 import { ShopifyMonitorAgent } from "./agent.js";
-import { loadConfig, createHealthEndpoint } from "@domien-sev/agent-sdk";
+import { loadConfig, createHealthEndpoint, createHeartbeatEndpoint } from "@domien-sev/agent-sdk";
 import { initScheduler } from "./scheduler.js";
+import { handleDailyScan } from "./handlers/daily-scan.js";
 
 const PORT = parseInt(process.env.PORT ?? "3000", 10);
 
@@ -11,11 +12,22 @@ async function main() {
 
   // Create HTTP server for health checks and message intake
   const healthHandler = createHealthEndpoint(agent);
+  const heartbeatHandler = createHeartbeatEndpoint(agent, {
+    "daily-scan": async (_payload, agent) => {
+      const stats = await handleDailyScan(agent as ShopifyMonitorAgent);
+      return `Scanned ${stats.totalProducts} products: ${stats.newIssuesCreated} new issues, ${stats.missingTranslations} missing, ${stats.suspiciousTranslations} suspicious`;
+    },
+  });
 
   const server = http.createServer(async (req, res) => {
     // Health endpoint
     if (req.url === "/health" && req.method === "GET") {
       return healthHandler(req, res);
+    }
+
+    // Paperclip heartbeat endpoint
+    if (req.url === "/heartbeat" && req.method === "POST") {
+      return heartbeatHandler(req, res);
     }
 
     // Message endpoint — receives routed messages from OpenClaw Gateway
